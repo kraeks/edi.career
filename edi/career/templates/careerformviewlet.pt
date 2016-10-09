@@ -1,0 +1,7 @@
+<div tal:condition="viewlet/available">
+  <h2 tal:content="string:Bitte bewerben Sie sich bis ${viewlet/bewerbungsfrist}"/>
+    <p>mit aussagekräftigen Unterlagen über unser <a href="" title="Bewerbungsformular" class="internal-link"
+      tal:attributes="href viewlet/linkurl">Bewerbungsformular</a>.</p>
+    <p tal:condition="viewlet/ansprechperson"><b>Ansprechperson: </b>
+        <span tal:content="viewlet/ansprechperson"/>, <span tal:content="viewlet/telefon"/></p>
+</div>
