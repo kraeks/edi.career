@@ -23,12 +23,17 @@ class CareerFormViewlet(api.Viewlet):
             kennziffer = getattr(self.context, 'kennziffer', '')
             pin = getattr(self.context, 'pin', '')
             pin = hashlib.sha224(pin).hexdigest()
-            self.linkurl = "%s?kennziffer=%s&pin=%s&stellentitel=%s&mykennziffer=%s" % (ref.absolute_url(), 
+            self.linkurl = "%s?kennziffer=%s&pin=%s&stellentitel=%s/%s&mykennziffer=%s" % (ref.absolute_url(), 
                                                                                         kennziffer, 
                                                                                         pin,
                                                                                         self.context.title,
+                                                                                        kennziffer,
                                                                                         kennziffer)
-            self.bewerbungsfrist = getattr(self.context, 'bewerbungsfrist').strftime('%d.%m.%Y')
+            bewerbungsfrist = getattr(self.context, 'bewerbungsfrist')
+            if bewerbungsfrist:
+                self.bewerbungsfrist = bewerbungsfrist.strftime('%d.%m.%Y')
+            else:
+                self.bewerbungsfrist = ''
             self.ansprechperson = getattr(self.context, 'ansprechperson')
             self.telefon = getattr(self.context, 'telefon')
 
@@ -42,3 +47,6 @@ class TestEMailViewlet(api.Viewlet):
             return ploneapi.user.has_permission('Modify portal content', username=current.id, obj=self.context)
         except:
             return False
+
+    def update(self):
+        self.testmailurl = self.context.absolute_url() + '/mailtester'
