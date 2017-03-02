@@ -50,7 +50,7 @@ extension_fields = [
                  ),
                CustomStringField('pin',
                schemata=u'Karriere',
-               widget = PasswordWidget(
+               widget = StringWidget(
                            label = u"PIN",
                            description = u"Bitte geben Sie hier einen 4-stelligen PIN-Code zum Schutz der Bewerberdaten ein.",
                            size = 4,

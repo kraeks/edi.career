@@ -22,13 +22,15 @@ class CareerFormViewlet(api.Viewlet):
             ref = self.context.getReferences('rel_careerform')[0]
             kennziffer = getattr(self.context, 'kennziffer', '')
             pin = getattr(self.context, 'pin', '')
+            mail = getattr(self.context, 'email', '')
             pin = hashlib.sha224(pin).hexdigest()
-            self.linkurl = "%s?kennziffer=%s&pin=%s&stellentitel=%s/%s&mykennziffer=%s" % (ref.absolute_url(), 
+            self.linkurl = "%s?kennziffer=%s&pin=%s&stellentitel=%s/%s&mykennziffer=%s&empfaenger=%s" % (ref.absolute_url(), 
                                                                                         kennziffer, 
                                                                                         pin,
                                                                                         self.context.title,
                                                                                         kennziffer,
-                                                                                        kennziffer)
+                                                                                        kennziffer,
+                                                                                        mail)
             bewerbungsfrist = getattr(self.context, 'bewerbungsfrist')
             if bewerbungsfrist:
                 self.bewerbungsfrist = bewerbungsfrist.strftime('%d.%m.%Y')
