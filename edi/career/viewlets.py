@@ -44,6 +44,8 @@ class TestEMailViewlet(api.Viewlet):
     api.viewletmanager(IBelowContentBody)
 
     def available(self):
+        if not getattr(self.context, 'pin', ''):
+            return False
         try:
             current = ploneapi.user.get_current()
             return ploneapi.user.has_permission('Modify portal content', username=current.id, obj=self.context)
