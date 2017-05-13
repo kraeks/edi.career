@@ -43,6 +43,7 @@ class ReadData(api.View):
             geschlecht = 'm'
         else:
             geschlecht = 'w'
+        ws.write(row, 2, '')
         ws.write(row, 3, geschlecht)
         ws.write(row, 4, i.get('titel'))
         ws.write(row, 5, i.get('vorname-1'))
@@ -58,48 +59,47 @@ class ReadData(api.View):
         geb = '%s.%s.%s' %(datum[2], datum[1], datum[0])
         ws.write(row, 14, geb)
         behindert = i.get('schwerbehinderung-gleichstellung-1')
-        if behindert:
-            ws.write(row, 15, behindert[0])
-        if i.get('hoechster-schulabschluss'):
-            if i.get('schulabschluss-ist'):
-                absolviert = i.get('schulabschluss-ist')[0]
-            else:
-                absolviert = ' '
-            abschluss = '%s %s %s' %(i.get('hoechster-schulabschluss'), absolviert, i.get('am'))
-            ws.write(row, 16, abschluss)
+        behindert = ','.join(behindert)
+        ws.write(row, 15, behindert)
+        ws.write(row, 16, i.get('hoechster-schulabschluss'))
+        if i.get('schulabschluss-ist'):
+            absolviert = i.get('schulabschluss-ist')[0]
+            am = i.get('am')
+            absolviertam = "%s am: %s" % (absolviert, am)
+            ws.write(row, 17, absolviertam)
         ausbildung = studium = weiterbildung = ''
         if i.get('ausbildungsberuf'):
-            if i.get('ausbildung-ist'):
-                absolviert = i.get('ausbildung-ist')[0]
-            else:
-                absolviert = ' '
-            ausbildung = '%s %s %s %s %s' %(i.get('ausbildungsberuf'), 
+            ausbildung = '%s %s %s %s %s' %(i.get('ausbildungsberuf'),
                                             i.get('fachrichtung'),
-                                            i.get('ausbildungsstaette'),
-                                            absolviert, 
-                                            i.get('am-1'))
+                                            i.get('ausbildungsstaette'))
+            ws.write(row, 18, ausbildung)
+        if i.get('ausbildung-ist'):
+            absolviert = i.get('ausbildung-ist')[0]
+            am = i.get('am-1')
+            absolviertam = "%s am: %s" %(absolviert, am)
+            ws.write(row, 19, absolviertam)
+
         if i.get('studiengang'):
-            if i.get('abschluss-ist'):
-                absolviert = i.get('abschluss-ist')[0]
-            else:
-                absolviert = ' '
-            studium = '%s %s %s %s %s' %(i.get('studiengang'), 
-                                         i.get('fachrichtung-1'), 
-                                         i.get('hochschule'),
-                                         absolviert, 
-                                         i.get('am-2'))
+            studium = '%s %s %s %s %s' %(i.get('studiengang'),
+                                         i.get('fachrichtung-1'),
+                                         i.get('hochschule'))
+            ws.write(row, 20, studium)
+        if i.get('abschluss-ist'):
+            absolviert = i.get('abschluss-ist')[0]
+            am = i.get('am-2')
+            absolviertam = "%s am: %s" %(absolviert, am)
+            ws.write(row, 21, absolviertam)
+
         if i.get('ausbildungsberuf-studiengang'):
-            if i.get('abschluss-ist-1'):
-                absolviert = i.get('abschluss-ist-1')[0]
-            else:
-                absolviert = ' '
-            weiterbildung = '%s %s %s %s %s' %(i.get('ausbildungsberuf-studiengang'), 
+            weiterbildung = '%s %s %s %s %s' %(i.get('ausbildungsberuf-studiengang'),
                                                i.get('fachrichtung-2'),
-                                               i.get('ausbildungsstaette-hochschule'),
-                                               absolviert, 
-                                               i.get('am-3'))
-        bildung = "%s;%s;%s" %(ausbildung, studium, weiterbildung)
-        ws.write(row, 17, bildung)
+                                               i.get('ausbildungsstaette-hochschule'))
+            ws.write(row, 22, weiterbildung)
+        if i.get('abschluss-ist-1'):
+            absolviert = i.get('abschluss-ist-1')[0]
+            am = i.get('am-3')
+            absolviertam = "%s am: %s" %(absolviert, am)
+            ws.write(row, 23, absolviertam)
         beruf = u"""\
 Stellenbezeichnung: %s
 Einsatzbereich/Abteilung: %s
@@ -108,11 +108,10 @@ von: %s
 bis: %s
         """ %(i.get('stellenbezeichnung'),
               i.get('einsatzbereich-abteilung'),
-              i.get('arbeitgeber'),
-              i.get('von-seit'),
-              i.get('bis'))
-        ws.write(row, 18, beruf)
- 
+              i.get('arbeitgeber'))
+        ws.write(row, 24, beruf)
+        berufdatum = "%s bis %s" % (i.get('von-seit'), i.get('bis'))
+        ws.write(row, 25, berufdatum)
 
     def render(self):
         client = MongoClient(mongoserver, mongoport)

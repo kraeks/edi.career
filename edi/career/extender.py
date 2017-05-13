@@ -28,6 +28,30 @@ class CustomStringField(ExtensionField, StringField):
 class CustomDateTimeField(ExtensionField, DateTimeField):
     pass
 
+MAILS = DisplayList((
+    ('karriere@bghw.de', 'Karriere'),
+    ('KarrierePostfachDirBNIT@bghw.de', 'Dir BN IT'),
+    ('KarrierePostfachDirBNPRDezGesundheitsschutz@bghw.de', 'Dir BN PR Dez Gesundheitsschutz'),
+    ('KarrierePostfachDirBNPRDezInformationundServices@bghw.de', 'Dir BN PR Dez Information und Services'),
+    ('KarrierePostfachDirBNPRDezQualifizierung@bghw.de','Dir BN PR Dez Qualifizierung'),
+    ('KarrierePostfachDirMaDirBNPraeventionsleitung@bghw.de', 'Dir MA_BN Praeventionsleitung'),
+    ('KarrierePostfachDirMaPRDezBiologischechmischeundphysik@bghw.de','Dir MA PR Dez Biologische chemische und physikalische Einwirkungen'),
+    ('KarrierePostfachDirMaPRDezFachbereichHandelundLogistik@bghw.de','Dir MA PR Dez Fachbereich Handel und Logistik'),
+    ('KarrierePostfachDirMaPRDezGrundsatzfragenundOrganisation@bghw.de','Dir MA PR Dez Grundsatzfragen und Organisation des Arbeitsschutzes'),
+    ('KarrierePostfachDirMaDezBuS@bghw.de','Dir MA Dez BuS'),
+    ('KarrierePostfachDirMaDezFinanzen@bghw.de','Dir MA Dez Finanzen'),
+    ('KarrierePostfachDirMADezMuBundAbtMuB@bghw.de','Dir MA MuB'),
+    ('KarrierePostfachDirMaDezRegress@bghw.de','Dir MA Dez Regress'),
+    ('KarrierePostfachDirMaDezRick@bghw.de','Dir MA Dez RICK'),
+    ('KarrierePostfachDirMaDezRuE@bghw.de','Dir MA Dez RuE'),
+    ('KarrierePostfachDirMAUK@bghw.de','Dir MA UK'),
+    ('KarrierePostfachRDNord@bghw.de','RD Nord'),
+    ('KarrierePostfachRDOst@bghw.de','RD Ost'),
+    ('KarrierePostfachRDSuedost@bghw.de','RD Suedost'),
+    ('KarrierePostfachRDSuedwest@bghw.de','RD Suedwest'),
+    ('KarrierePostfachRDWest@bghw.de','RD West'),
+    ))
+
 extension_fields = [
                CustomReferenceField('careerform',
                schemata=u'Karriere',
@@ -59,12 +83,12 @@ extension_fields = [
                ),
                CustomStringField('email',
                schemata=u'Karriere',
-               validators = ('isEmail'),
-               default = "karriere@bghw.de",
-               widget = StringWidget(
+               vocabulary=MAILS,
+               widget = SelectionWidget(
                            label = u"eMail",
                            description = u"Bitte geben Sie hier ein, an welche eMail-Adresse die\
                                            Bewerbungsdaten geschickt werden sollen,",
+                           format = "flex",
                            ),
                  ),
                CustomStringField('ansprechperson',
