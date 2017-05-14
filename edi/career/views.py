@@ -12,8 +12,11 @@ config = getConfiguration()
 configuration = config.product_config.get('mongodb', dict())
 mongoserver = configuration.get('mongoserver')
 mongoport = int(configuration.get('mongoport'))
-
-
+import smtplib
+from email.mime.application import MIMEApplication
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.utils import formatdate
 
 class Mailtester(api.Page):
     api.context(Interface)
@@ -113,11 +116,29 @@ bis: %s
         berufdatum = "%s bis %s" % (i.get('von-seit'), i.get('bis'))
         ws.write(row, 25, berufdatum)
 
+    def send_mail(self, send_from, send_to, subject, text, files=[], server="127.0.0.1"):
+        msg = MIMEMultipart()
+        msg['From'] = send_from
+        msg['To'] = send_to
+        msg['Date'] = formatdate(localtime=True)
+        msg['Subject'] = subject
+
+        msg.attach(MIMEText(text))
+
+        for f in files:
+            part = MIMEApplication(f, Name=u'bewerbungen.xls')
+            part['Content-Disposition'] = 'attachment; filename=u"bewerbungen.xls"'
+            msg.attach(part)
+
+        smtp = smtplib.SMTP(server)
+        smtp.sendmail(send_from, send_to, msg.as_string())
+        smtp.close()
+
     def render(self):
         client = MongoClient(mongoserver, mongoport)
         kennziffer = self.request.get('kennziffer')
         pin = self.request.get('pin')
-        print pin
+        handling = self.request.get('handling')
         pin = hashlib.sha224(pin).hexdigest()
         print pin
         self.pincheck = False
@@ -134,12 +155,21 @@ bis: %s
             return self.response.redirect('novalidpin')
         wb.save(myfile)
         myfile.seek(0)
-        filename = 'bewerber.xls'
-        RESPONSE = self.request.response
-        RESPONSE.setHeader('content-type', 'application/vnd.ms-excel')
-        RESPONSE.setHeader('content-disposition', 'attachment; filename=%s' %filename)
-        return myfile.read()
-
+        if handling == 'download':
+            filename = 'bewerber.xls'
+            RESPONSE = self.request.response
+            RESPONSE.setHeader('content-type', 'application/vnd.ms-excel')
+            RESPONSE.setHeader('content-disposition', 'attachment; filename=%s' %filename)
+            return myfile.read()
+        elif handling == 'mail':
+            send_from = 'bghwportal@bghw.de'
+            send_to = self.context.email
+            subject = u'Bewerbungen auf Stellenanzeige mit Kennziffer: %s' % kennziffer
+            text = u'Hier erhalten Sie die Excel-Datei mit den eingegangenen Bewerbungen'
+            files = [myfile]
+            server = self.context.MailHost.get('smtp_host')
+            #server = "127.0.0.1"
+            self.send_mail(send_from, send_to, subject, text, files, server)
 
 class NoValidPin(api.Page):
     api.context(Interface)
