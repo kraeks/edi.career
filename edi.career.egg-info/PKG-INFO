@@ -1,0 +1,24 @@
+Metadata-Version: 1.1
+Name: edi.career
+Version: 1.0
+Summary: Erweiterung fuer Plone-Formgen fuer die Karriere-Website der BGHW
+Home-page: http://svn.plone.org/svn/collective/
+Author: UNKNOWN
+Author-email: UNKNOWN
+License: GPL
+Description: Introduction
+        ============
+        
+        
+        
+        Changelog
+        =========
+        
+        1.0 - Unreleased
+        ----------------
+        
+        * Initial release
+        
+        
+Platform: UNKNOWN
+Classifier: Programming Language :: Python

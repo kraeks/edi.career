@@ -1,0 +1,4 @@
+setuptools
+uvc.api[plone]
+pymongo
+xlwt
