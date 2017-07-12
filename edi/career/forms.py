@@ -34,6 +34,7 @@ class EmailBewerbungen(api.Form):
             return
         data['handling'] = 'mail'
         baseurl = ploneapi.portal.get().absolute_url()
+        baseurl = self.context.absolute_url()
         params = urllib.urlencode(data)
         url = '%s/readdata?%s' % (baseurl, params)
         return self.response.redirect(url)

@@ -43,7 +43,7 @@ MAILS = DisplayList((
     ('KarrierePostfachDirMADezMuBundAbtMuB@bghw.de','Dir MA MuB'),
     ('KarrierePostfachDirMaDezRegress@bghw.de','Dir MA Dez Regress'),
     ('KarrierePostfachDirMaDezRick@bghw.de','Dir MA Dez RICK'),
-    ('KarrierePostfachDirMaDezRuE@bghw.de','Dir MA Dez RuE'),
+    ('KarrierePostfachDirMaDezRuL@bghw.de','Dir MA Dez RuL'),
     ('KarrierePostfachDirMAUK@bghw.de','Dir MA UK'),
     ('KarrierePostfachRDNord@bghw.de','RD Nord'),
     ('KarrierePostfachRDOst@bghw.de','RD Ost'),

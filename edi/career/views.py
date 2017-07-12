@@ -5,6 +5,7 @@ from plone import api as ploneapi
 from pymongo import MongoClient
 from bson.objectid import ObjectId
 from App.config import getConfiguration
+from Products.CMFPlone.utils import getToolByName
 import xlwt
 import tempfile
 import hashlib
@@ -42,7 +43,7 @@ class ReadData(api.View):
             self.pincheck = True
         ws.write(row, 0, i.get('eingangsdatum'))
         ws.write(row, 1, str(i.get('_id')))
-        if i.get('anrede') == 'Herr':
+        if i.get('anrede') == 'geehrter Herr':
             geschlecht = 'm'
         else:
             geschlecht = 'w'
@@ -66,57 +67,69 @@ class ReadData(api.View):
         ws.write(row, 15, behindert)
         ws.write(row, 16, i.get('hoechster-schulabschluss'))
         if i.get('schulabschluss-ist'):
-            absolviert = i.get('schulabschluss-ist')[0]
+            absolviert = i.get('schulabschluss-ist')
             am = i.get('am')
+            am = '%s.%s.%s' %(am[8:10],am[5:7],am[0:4])
             absolviertam = "%s am: %s" % (absolviert, am)
             ws.write(row, 17, absolviertam)
         ausbildung = studium = weiterbildung = ''
         if i.get('ausbildungsberuf'):
-            ausbildung = '%s %s %s %s %s' %(i.get('ausbildungsberuf'),
-                                            i.get('fachrichtung'),
-                                            i.get('ausbildungsstaette'))
+            ausbildung = '%s %s %s' %(i.get('ausbildungsberuf'),
+                                      i.get('fachrichtung'),
+                                      i.get('ausbildungsstaette'))
             ws.write(row, 18, ausbildung)
         if i.get('ausbildung-ist'):
-            absolviert = i.get('ausbildung-ist')[0]
+            absolviert = i.get('ausbildung-ist')
             am = i.get('am-1')
+            am = '%s.%s.%s' %(am[8:10],am[5:7],am[0:4])
             absolviertam = "%s am: %s" %(absolviert, am)
             ws.write(row, 19, absolviertam)
 
         if i.get('studiengang'):
-            studium = '%s %s %s %s %s' %(i.get('studiengang'),
-                                         i.get('fachrichtung-1'),
-                                         i.get('hochschule'))
+            studium = '%s %s %s' %(i.get('studiengang'),
+                                   i.get('fachrichtung-1'),
+                                   i.get('hochschule'))
             ws.write(row, 20, studium)
         if i.get('abschluss-ist'):
-            absolviert = i.get('abschluss-ist')[0]
+            absolviert = i.get('abschluss-ist')
             am = i.get('am-2')
+            am = '%s.%s.%s' %(am[8:10],am[5:7],am[0:4])
             absolviertam = "%s am: %s" %(absolviert, am)
             ws.write(row, 21, absolviertam)
 
         if i.get('ausbildungsberuf-studiengang'):
-            weiterbildung = '%s %s %s %s %s' %(i.get('ausbildungsberuf-studiengang'),
-                                               i.get('fachrichtung-2'),
-                                               i.get('ausbildungsstaette-hochschule'))
+            weiterbildung = '%s %s %s' %(i.get('ausbildungsberuf-studiengang'),
+                                         i.get('fachrichtung-2'),
+                                         i.get('ausbildungsstaette-hochschule'))
             ws.write(row, 22, weiterbildung)
         if i.get('abschluss-ist-1'):
-            absolviert = i.get('abschluss-ist-1')[0]
+            absolviert = i.get('abschluss-ist-1')
             am = i.get('am-3')
+            am = '%s.%s.%s' %(am[8:10],am[5:7],am[0:4])
             absolviertam = "%s am: %s" %(absolviert, am)
             ws.write(row, 23, absolviertam)
         beruf = u"""\
 Stellenbezeichnung: %s
 Einsatzbereich/Abteilung: %s
 Arbeitgeber: %s
-von: %s
-bis: %s
         """ %(i.get('stellenbezeichnung'),
               i.get('einsatzbereich-abteilung'),
               i.get('arbeitgeber'))
         ws.write(row, 24, beruf)
-        berufdatum = "%s bis %s" % (i.get('von-seit'), i.get('bis'))
+        vonseit = i.get('von-seit')
+        if vonseit:
+            vonseit = '%s.%s.%s' %(vonseit[8:10],vonseit[5:7],vonseit[0:4])
+        else:
+            vonseit = ''
+        bis = i.get('bis')
+        if bis:
+            bis = '%s.%s.%s' %(bis[8:10],bis[5:7],bis[0:4])
+        else:
+            bis = ''
+        berufdatum = "%s bis %s" % (vonseit, bis)
         ws.write(row, 25, berufdatum)
 
-    def send_mail(self, send_from, send_to, subject, text, files=[], server="127.0.0.1"):
+    def send_mail(self, send_from, send_to, subject, text, files=[], server="127.0.0.1", kennziffer="bewerbungen"):
         msg = MIMEMultipart()
         msg['From'] = send_from
         msg['To'] = send_to
@@ -126,8 +139,8 @@ bis: %s
         msg.attach(MIMEText(text))
 
         for f in files:
-            part = MIMEApplication(f, Name=u'bewerbungen.xls')
-            part['Content-Disposition'] = 'attachment; filename=u"bewerbungen.xls"'
+            part = MIMEApplication(f.read(), Name='%s.xls' %str(kennziffer))
+            part['Content-Disposition'] = 'attachment; filename="%s.xls"' %str(kennziffer)
             msg.attach(part)
 
         smtp = smtplib.SMTP(server)
@@ -162,18 +175,30 @@ bis: %s
             RESPONSE.setHeader('content-disposition', 'attachment; filename=%s' %filename)
             return myfile.read()
         elif handling == 'mail':
+            pcat = getToolByName(self.context, 'portal_catalog')
+            brains = pcat(Kennziffer=kennziffer, show_inactive=True)
+            if brains:
+                send_to = brains[0].getObject().email
+            else:
+                return self.response.redirect('novalidpin')
             send_from = 'bghwportal@bghw.de'
-            send_to = self.context.email
             subject = u'Bewerbungen auf Stellenanzeige mit Kennziffer: %s' % kennziffer
             text = u'Hier erhalten Sie die Excel-Datei mit den eingegangenen Bewerbungen'
             files = [myfile]
             server = self.context.MailHost.get('smtp_host')
-            #server = "127.0.0.1"
-            self.send_mail(send_from, send_to, subject, text, files, server)
+            server = "10.30.0.57"
+            self.send_mail(send_from, send_to, subject, text, files, server, kennziffer)
+            return self.response.redirect('mailsent')
 
 class NoValidPin(api.Page):
     api.context(Interface)
 
 
     def render(self):
-        return u"Der von Ihnen eingegebene PIN ist nicht gültig"
+        return u"Es wurde keine Stellenanzeige mit dieser Kennziffer gefunden oder der von Ihnen eingegebene PIN ist nicht gültig"
+
+class MailSent(api.Page):
+    api.context(Interface)
+
+    def render(self):
+        return u"Es wurde eine eMail an das in der Stellenanzeige angegebene Postfach gesendet."

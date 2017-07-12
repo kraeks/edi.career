@@ -1,5 +1,25 @@
 <configure xmlns="http://namespaces.zope.org/zope"
+           xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
            xmlns:grok="http://namespaces.zope.org/grok">
+
+  <genericsetup:registerProfile
+      name="default"
+      title="edi.career"
+      directory="profiles/default"
+      description="Installs the edi.career add-on."
+      provides="Products.GenericSetup.interfaces.EXTENSION"
+      post_handler=".setuphandlers.post_install"
+      />
+
+  <genericsetup:registerProfile
+      name="uninstall"
+      title="edi.career (uninstall)"
+      directory="profiles/uninstall"
+      description="Uninstalls the edi.career add-on."
+      provides="Products.GenericSetup.interfaces.EXTENSION"
+      post_handler=".setuphandlers.uninstall"
+      />
+
   <include package="five.grok" />
   <grok:grok package="." />
 
