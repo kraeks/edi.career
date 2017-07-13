@@ -5,8 +5,11 @@ from uvc.api import api
 from plone import api as ploneapi
 import urllib
 
+class IBewerbungenDownload(Interface):
+    """Marker Interface"""
+
 class DownloadBewerbungen(api.Form):
-    api.context(Interface)
+    api.context(IBewerbungenDownload)
     fields = api.Fields(IBewerbungen)
 
 
