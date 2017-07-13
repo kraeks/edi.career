@@ -153,7 +153,6 @@ Arbeitgeber: %s
         pin = self.request.get('pin')
         handling = self.request.get('handling')
         pin = hashlib.sha224(pin).hexdigest()
-        print pin
         self.pincheck = False
         database = 'db_%s' % (kennziffer)
         entries = client[database].collection.find()
