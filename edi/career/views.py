@@ -65,57 +65,62 @@ class ReadData(api.View):
         behindert = i.get('schwerbehinderung-gleichstellung-1')
         behindert = ','.join(behindert)
         ws.write(row, 15, behindert)
-        ws.write(row, 16, i.get('hoechster-schulabschluss'))
+        schulabschluss = i.get('hoechster-schulabschluss')
+        absolviertam = ''
         if i.get('schulabschluss-ist'):
             absolviert = i.get('schulabschluss-ist')
             am = i.get('am')
             am = '%s.%s.%s' %(am[8:10],am[5:7],am[0:4])
             absolviertam = "%s am: %s" % (absolviert, am)
-            ws.write(row, 17, absolviertam)
-        ausbildung = studium = weiterbildung = ''
+        schulabschluss = "%s %s" %(schulabschluss, absolviertam)
+        ws.write(row, 16, schulabschluss)
+
+        ausbildung = ''
+        absolviertam = ''
         if i.get('ausbildungsberuf'):
             ausbildung = '%s %s %s' %(i.get('ausbildungsberuf'),
                                       i.get('fachrichtung'),
                                       i.get('ausbildungsstaette'))
-            ws.write(row, 18, ausbildung)
         if i.get('ausbildung-ist'):
             absolviert = i.get('ausbildung-ist')
             am = i.get('am-1')
             am = '%s.%s.%s' %(am[8:10],am[5:7],am[0:4])
             absolviertam = "%s am: %s" %(absolviert, am)
-            ws.write(row, 19, absolviertam)
+        ausbildung = "%s %s" %(ausbildung, absolviertam)
+        ws.write(row, 17, ausbildung)
 
+        studium = ''
+        absolviertam =''
         if i.get('studiengang'):
             studium = '%s %s %s' %(i.get('studiengang'),
                                    i.get('fachrichtung-1'),
                                    i.get('hochschule'))
-            ws.write(row, 20, studium)
         if i.get('abschluss-ist'):
             absolviert = i.get('abschluss-ist')
             am = i.get('am-2')
             am = '%s.%s.%s' %(am[8:10],am[5:7],am[0:4])
             absolviertam = "%s am: %s" %(absolviert, am)
-            ws.write(row, 21, absolviertam)
+        studium = "%s %s" %(studium, absolviertam)
+        ws.write(row, 18, studium)
 
+        weiterbildung = ''
+        absolviertam = ''
         if i.get('ausbildungsberuf-studiengang'):
             weiterbildung = '%s %s %s' %(i.get('ausbildungsberuf-studiengang'),
                                          i.get('fachrichtung-2'),
                                          i.get('ausbildungsstaette-hochschule'))
-            ws.write(row, 22, weiterbildung)
         if i.get('abschluss-ist-1'):
             absolviert = i.get('abschluss-ist-1')
             am = i.get('am-3')
             am = '%s.%s.%s' %(am[8:10],am[5:7],am[0:4])
             absolviertam = "%s am: %s" %(absolviert, am)
-            ws.write(row, 23, absolviertam)
-        beruf = u"""\
-Stellenbezeichnung: %s
-Einsatzbereich/Abteilung: %s
-Arbeitgeber: %s
-        """ %(i.get('stellenbezeichnung'),
-              i.get('einsatzbereich-abteilung'),
-              i.get('arbeitgeber'))
-        ws.write(row, 24, beruf)
+        weiterbildung = "%s %s" %(weiterbildung, absolviertam)
+        ws.write(row, 19, weiterbildung)
+
+        beruf = ''
+        beruf = '%s %s %s' %(i.get('stellenbezeichnung'),
+                             i.get('einsatzbereich-abteilung'),
+                             i.get('arbeitgeber'))
         vonseit = i.get('von-seit')
         if vonseit:
             vonseit = '%s.%s.%s' %(vonseit[8:10],vonseit[5:7],vonseit[0:4])
@@ -127,7 +132,8 @@ Arbeitgeber: %s
         else:
             bis = ''
         berufdatum = "%s bis %s" % (vonseit, bis)
-        ws.write(row, 25, berufdatum)
+        beruf = "%s %s" %(beruf, berufdatum)
+        ws.write(row, 20, beruf)
 
     def send_mail(self, send_from, send_to, subject, text, files=[], server="127.0.0.1", kennziffer="bewerbungen"):
         msg = MIMEMultipart()
